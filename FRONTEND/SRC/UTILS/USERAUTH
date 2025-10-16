@@ -1,0 +1,22 @@
+import { useEffect, useState } from 'react'
+
+const KEY = 'accessToken'
+
+export function useAuth() {
+  const [token, setToken] = useState<string | null>(() => localStorage.getItem(KEY))
+
+  function save(t: string) {
+    localStorage.setItem(KEY, t)
+    setToken(t)
+  }
+  function logout() {
+    localStorage.removeItem(KEY)
+    setToken(null)
+  }
+
+  useEffect(() => {
+    // noop
+  }, [])
+
+  return { token, save, logout }
+}
