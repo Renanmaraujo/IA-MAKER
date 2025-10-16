@@ -1,0 +1,40 @@
+const API_BASE = import.meta.env.VITE_API_BASE
+const LOGIN_PATH = import.meta.env.VITE_LOGIN_PATH || '/api/auth/login'
+const MESSAGES_PATH = import.meta.env.VITE_MESSAGES_PATH || '/api/messages'
+
+export const endpoints = {
+  login: () => `${API_BASE}${LOGIN_PATH}`,
+  messages: () => `${API_BASE}${MESSAGES_PATH}`,
+  message: (id: string) => `${API_BASE}${MESSAGES_PATH}/${id}`
+}
+
+export class ApiError extends Error {
+  status: number
+  problem?: any
+  constructor(status: number, message: string, problem?: any) {
+    super(message)
+    this.status = status
+    this.problem = problem
+  }
+}
+
+export async function apiFetch<T>(input: RequestInfo, init?: RequestInit): Promise<T> {
+  const res = await fetch(input, {
+    ...init,
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+      ...(init?.headers || {})
+    }
+  })
+  if (!res.ok) {
+    const ct = res.headers.get('content-type') || ''
+    if (ct.includes('application/problem+json')) {
+      const body = await res.json()
+      throw new ApiError(res.status, body.title || 'API error', body)
+    }
+    throw new ApiError(res.status, res.statusText)
+  }
+  if (res.status === 204) return undefined as unknown as T
+  return res.json()
+}
