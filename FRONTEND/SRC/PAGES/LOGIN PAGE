@@ -1,0 +1,35 @@
+import React, { useState } from 'react'
+import { useLogin } from '../api/hooks'
+import { useAuth } from '../utils/useAuth'
+
+export function LoginPage() {
+  const { save } = useAuth()
+  const login = useLogin()
+  const [username, setUsername] = useState('candidate')
+  const [password, setPassword] = useState('secret')
+
+  function onSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    login.mutate({ username, password }, {
+      onSuccess: (res) => save(res.accessToken)
+    })
+  }
+
+  return (
+    <div style={{ display:'grid', gap:12, placeItems:'center', minHeight:'100vh' }}>
+      <h1>Login</h1>
+      <form onSubmit={onSubmit} style={{ display:'grid', gap:8, width:300 }}>
+        <input value={username} onChange={e=>setUsername(e.target.value)} placeholder="username" />
+        <input type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="password" />
+        <button type="submit" disabled={login.isLoading}>
+          {login.isLoading ? 'Entrando...' : 'Entrar'}
+        </button>
+        {login.isError && (
+          <small style={{ color:'crimson' }}>
+            {String((login.error as any)?.problem?.detail || (login.error as any)?.message || 'Erro ao entrar')}
+          </small>
+        )}
+      </form>
+    </div>
+  )
+}
