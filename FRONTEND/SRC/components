@@ -1,0 +1,37 @@
+import React from 'react'
+import { useForm } from 'react-hook-form'
+import { z } from 'zod'
+import { zodResolver } from '@hookform/resolvers/zod'
+
+const schema = z.object({
+  title: z.string().min(1, 'Título obrigatório'),
+  body: z.string().min(10, 'Mínimo de 10 caracteres'),
+  author: z.string().optional(),
+  status: z.enum(['draft', 'published', 'archived']).default('draft')
+})
+
+export type MessageFormValues = z.infer<typeof schema>
+
+export function MessageForm({ onSubmit, loading }:{ onSubmit:(v:MessageFormValues)=>void; loading?:boolean }) {
+  const { register, handleSubmit, formState: { errors } } = useForm<MessageFormValues>({ resolver: zodResolver(schema) })
+
+  return (
+    <form onSubmit={handleSubmit(onSubmit)} style={{ display:'grid', gap:8, maxWidth:520 }}>
+      <input placeholder="Título" {...register('title')} />
+      {errors.title && <small>{errors.title.message}</small>}
+
+      <textarea placeholder="Corpo da mensagem" rows={5} {...register('body')} />
+      {errors.body && <small>{errors.body.message}</small>}
+
+      <input placeholder="Autor (opcional)" {...register('author')} />
+
+      <select {...register('status')}>
+        <option value="draft">draft</option>
+        <option value="published">published</option>
+        <option value="archived">archived</option>
+      </select>
+
+      <button type="submit" disabled={loading}>{loading ? 'Enviando...' : 'Criar'}</button>
+    </form>
+  )
+}
