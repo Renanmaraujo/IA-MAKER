@@ -1,0 +1,40 @@
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { apiFetch, endpoints } from './client'
+
+export function useLogin() {
+  return useMutation<{accessToken:string, tokenType:string, expiresIn:number}, any, {username:string; password:string}>({
+    mutationFn: (payload) => apiFetch(endpoints.login(), { method: 'POST', body: JSON.stringify(payload) })
+  })
+}
+
+export function useMessagesList(token: string | null) {
+  return useQuery({
+    queryKey: ['messages'],
+    queryFn: () => apiFetch<{data:any[], meta:any}>(`${endpoints.messages()}?page=1&limit=20`,
+      { headers: { Authorization: `Bearer ${token}` } }),
+    enabled: !!token
+  })
+}
+
+export function useCreateMessage(token: string | null) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (payload: any) => apiFetch(endpoints.messages(), {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      body: JSON.stringify(payload)
+    }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['messages']})
+  })
+}
+
+export function useDeleteMessage(token: string | null) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id: string) => apiFetch(endpoints.message(id), {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${token}` }
+    }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['messages']})
+  })
+}
