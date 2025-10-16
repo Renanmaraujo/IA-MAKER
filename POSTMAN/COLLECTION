@@ -1,0 +1,91 @@
+{
+  "info": {
+    "name": "Dev IA Maker — API (n8n webhooks)",
+    "_postman_id": "2b90b8b0-0000-4c00-9000-1760582581",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Auth — Login",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"username\": \"candidate\", \"password\": \"secret\"}"
+        },
+        "url": {
+          "raw": "{{API_BASE}}{{LOGIN_PATH}}",
+          "host": [
+            "{{API_BASE}}"
+          ],
+          "path": [
+            "{{LOGIN_PATH}}"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Messages — List",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{ACCESS_TOKEN}}"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{API_BASE}}{{MESSAGES_PATH}}?page=1&limit=20&status=published",
+          "host": [
+            "{{API_BASE}}"
+          ],
+          "path": [
+            "{{MESSAGES_PATH}}"
+          ],
+          "query": [
+            {
+              "key": "page",
+              "value": "1"
+            },
+            {
+              "key": "limit",
+              "value": "20"
+            },
+            {
+              "key": "status",
+              "value": "published"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "API_BASE",
+      "value": "https://SEU-N8N.DOMINIO.TLD"
+    },
+    {
+      "key": "LOGIN_PATH",
+      "value": "/api/auth/login"
+    },
+    {
+      "key": "MESSAGES_PATH",
+      "value": "/api/messages"
+    },
+    {
+      "key": "ACCESS_TOKEN",
+      "value": ""
+    }
+  ]
+}
