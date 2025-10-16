@@ -1,0 +1,48 @@
+import React, { useState } from 'react'
+import { useAuth } from '../utils/useAuth'
+import { useCreateMessage, useDeleteMessage, useMessagesList } from '../api/hooks'
+import { MessageForm, MessageFormValues } from '../components/MessageForm'
+
+export function MessagesPage() {
+  const { token, logout } = useAuth()
+  const list = useMessagesList(token)
+  const create = useCreateMessage(token)
+  const remove = useDeleteMessage(token)
+  const [showForm, setShowForm] = useState(false)
+
+  const onCreate = (v: MessageFormValues) => {
+    create.mutate(v, { onSuccess: () => setShowForm(false) })
+  }
+
+  return (
+    <div style={{ padding:24, display:'grid', gap:12 }}>
+      <header style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+        <h1>Mensagens</h1>
+        <div style={{ display:'flex', gap:8 }}>
+          <button onClick={()=>setShowForm(v => !v)}>{showForm ? 'Cancelar' : 'Nova'}</button>
+          <button onClick={logout}>Sair</button>
+        </div>
+      </header>
+
+      {showForm && <MessageForm onSubmit={onCreate} loading={create.isLoading} />}
+
+      {list.isLoading && <p>Carregando...</p>}
+      {list.isError && <p style={{color:'crimson'}}>{String((list.error as any)?.problem?.detail || 'Erro ao carregar')}</p>}
+
+      {list.data && (
+        <ul style={{ display:'grid', gap:8, listStyle:'none', padding:0 }}>
+          {list.data.data.map((m:any) => (
+            <li key={m.id} style={{ padding:12, border:'1px solid #ddd', borderRadius:8 }}>
+              <strong>{m.title}</strong>
+              <p>{m.body}</p>
+              <small>{m.status} — {new Date(m.created_at).toLocaleString()}</small>
+              <div>
+                <button onClick={()=> remove.mutate(m.id)} disabled={remove.isLoading}>Excluir</button>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  )
+}
