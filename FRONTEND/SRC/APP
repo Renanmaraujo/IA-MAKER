@@ -1,0 +1,9 @@
+import React from 'react'
+import { LoginPage } from './pages/LoginPage'
+import { MessagesPage } from './pages/MessagesPage'
+import { useAuth } from './utils/useAuth'
+
+export default function App() {
+  const { token } = useAuth()
+  return token ? <MessagesPage/> : <LoginPage/>
+}
